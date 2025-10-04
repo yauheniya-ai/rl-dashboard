@@ -15,10 +15,7 @@ app = FastAPI(title="Ping Pong Training Tracker")
 # Allow frontend to connect
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "https://rl-dashboard-frontend.onrender.com",  # Production
-        "http://localhost:3000",  # Local development
-    ],
+    allow_origins=["*"],  # allow frontend domains here
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -87,13 +84,12 @@ def get_results():
             results["elapsed"] = [safe_float(x) for x in df["elapsed_min"]]
             results["last"] = safe_float(df["avg_return_last50"].iloc[-1])
 
-    # best_episode_results - get the row with maximum reward
+    # best_episode_results - get the last (most recent best) row
     if "best_episode_results" in tables:
         with get_conn() as conn:
             best_df = pd.read_sql(f'SELECT * FROM "{tables["best_episode_results"]}"', conn)
         if not best_df.empty:
-            best_idx = best_df["reward"].idxmax()
-            best_row = best_df.loc[best_idx]
+            best_row = best_df.iloc[-1]
             results["best"] = {
                 "episode": int(float(best_row["episode"])),
                 "steps": int(float(best_row["steps"])),
@@ -124,13 +120,12 @@ def get_results_by_run(run_id: str):
             results["elapsed"] = [safe_float(x) for x in df["elapsed_min"]]
             results["last"] = safe_float(df["avg_return_last50"].iloc[-1])
 
-    # best_episode_results - get the row with maximum reward
+    # best_episode_results - get the last (most recent best) row
     if "best_episode_results" in tables:
         with get_conn() as conn:
             best_df = pd.read_sql(f'SELECT * FROM "{tables["best_episode_results"]}"', conn)
         if not best_df.empty:
-            best_idx = best_df["reward"].idxmax()
-            best_row = best_df.loc[best_idx]
+            best_row = best_df.iloc[-1]
             results["best"] = {
                 "episode": int(float(best_row["episode"])),
                 "steps": int(float(best_row["steps"])),
@@ -160,12 +155,12 @@ def get_runs_summary():
                 last_avg_return = safe_float(df["avg_return_last50"].iloc[-1])
                 elapsed_min = safe_float(df["elapsed_min"].iloc[-1])
 
-        # fetch best reward
+        # fetch best reward from last row of best_episode_results
         if "best_episode_results" in tables:
             with get_conn() as conn:
                 df_best = pd.read_sql(f'SELECT * FROM "{tables["best_episode_results"]}"', conn)
             if not df_best.empty:
-                best_reward = safe_float(df_best["reward"].max())
+                best_reward = safe_float(df_best["reward"].iloc[-1])
 
         # fetch model from config_kv table if it exists
         config_table = f"run_{run_id}_config_kv"
