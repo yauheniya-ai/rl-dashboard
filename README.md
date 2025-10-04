@@ -38,7 +38,6 @@ pong-dashboard/
 ## Features
 
 - **Live training chart**: Plot average rewards of the last 50 episodes over training steps.  
-- **KPI cards**: Display best reward, last average reward, and elapsed time.  
 - **Run summary table**: Shows previous runs, best reward, last average reward, elapsed time, and model type.  
 - **3D Table Tennis model**: Interactive view of a ping pong table using <img src="https://api.iconify.design/logos:threejs.svg" width="12" height="12" style="vertical-align:middle;" alt="ThreeJS"/> React Three Fiber     
 - **Rules panel**: Briefly explains <img src="./frontend/public/images/olympics_logo_color.svg" height="16" style="vertical-align:middle;" alt="Olympics"/> Olympic table tennis rules alongside the model.
@@ -69,8 +68,9 @@ uvicorn main:app --reload --host 0.0.0.0 --port 8000
 
 The backend exposes:
 
-- http://localhost:8000/results — latest training run data
-- http://localhost:8000/runs — summary of all runs
+- `/results` — latest training run data
+- `/results/{run_id}` - results for a specific run
+- `/runs` — summary of all runs
 
 ## Frontend Setup
 
@@ -85,7 +85,6 @@ cd frontend
 ```bash
 npm install
 ```
-
 
 3. Start the development server:
 
@@ -102,6 +101,11 @@ npm start
   <br><em>Fig. 2: Table Tennis 3D Model<br>and Olympic Rules.</em>
 </p>
 
+## Deployment
+
+The monitoring dashboard is deployed on Render:
+- Frontend: https://rl-dashboard-frontend.onrender.com
+- Backend: https://rl-dashboard-backend.onrender.com/runs
 
 ## License
 

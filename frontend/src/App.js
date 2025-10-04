@@ -262,7 +262,7 @@ function App() {
 
           <h3>Equipment</h3>
           <ul>
-            <li><strong>Table:</strong> 2.74 x 1.53 m with a net at 15.25 cm height.</li>
+            <li><strong>Table:</strong> 2.74x1.53 m with a net at 15.25 cm height.</li>
             <li><strong>Racquet:</strong> Wooden paddle (~17x15 cm) with black and red rubber surfaces.</li>
             <li><strong>Ball:</strong> Spherical, 40 mm diameter, 2.7 g weight, orange or white.</li>
           </ul>
