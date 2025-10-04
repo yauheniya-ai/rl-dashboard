@@ -1,0 +1,26 @@
+services:
+  # --- Backend: FastAPI ---
+  - type: web
+    name: rl-dashboard-backend
+    runtime: python
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn -k uvicorn.workers.UvicornWorker main:app --bind 0.0.0.0:$PORT -w 2
+    plan: free
+    autoDeploy: true
+    envVars:
+      - key: NEON_CONN
+        sync: false
+  
+  # --- Frontend: React ---
+  - type: web
+    name: rl-dashboard-frontend
+    runtime: static
+    rootDir: frontend
+    buildCommand: npm ci && npm run build
+    publishPath: ./build
+    plan: free
+    autoDeploy: true
+    envVars:
+      - key: REACT_APP_API_URL
+        value: https://rl-dashboard-backend.onrender.com

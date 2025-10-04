@@ -1,0 +1,78 @@
+notes/
+
+# ---- OS / Editor ----
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+
+# ---- Python (FastAPI backend) ----
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pytest_cache/
+.mypy_cache/
+.pytest_cache/
+.env
+.venv/
+.env.*
+!.env.example
+*.sqlite3
+*.db
+
+# ---- Node / React frontend ----
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+pnpm-lock.yaml
+
+# dependencies
+/node_modules
+/.pnp
+.pnp.js
+
+
+# misc
+.DS_Store
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+
+# ---- Build outputs ----
+dist/
+build/
+*.egg-info/
+.eggs/
+coverage/
+htmlcov/
+.cache/
+out/
+
+# ---- Logs ----
+*.log
+logs/
+*.out
+
+# ---- Python virtual environments ----
+env/
+venv/
+ENV/
+.venv/
+
+# ---- Results / Models (generated data) ----
+results/
+ppo_pong.keras
+*.h5
+*.keras
+checkpoints/
+
+# ---- Misc ----
+*.bak
+*.tmp
+*.orig

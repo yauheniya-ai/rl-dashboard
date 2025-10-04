@@ -1,0 +1,16 @@
+.App { font-family: sans-serif; text-align: center; padding: 2rem; }
+.kpi-cards { display: flex; gap: 2rem; justify-content: center; margin-bottom: 5rem; margin-top: 3rem; }
+.card { background: #222; padding: 1rem 1rem; border-radius: 0px; font-size: 2rem; }
+.card h2 {
+  font-size: 1rem;
+  color: white; /* purple accent for titles */
+}
+.card p {
+  font-size: 2.5rem; 
+  margin: 0;         
+  color: #8b76e9; 
+}
+table { margin: auto; border-collapse: collapse; width: 60%; }
+th, td { border: 1px solid #555; padding: 0.5rem; }
+th { background: #333; color: white; }
+td { text-align: center; }
