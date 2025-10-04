@@ -18,7 +18,7 @@ services:
     runtime: static
     rootDir: frontend
     buildCommand: npm ci && npm run build
-    publishPath: ./build
+    staticPublishPath: ./build
     plan: free
     autoDeploy: true
     envVars:
