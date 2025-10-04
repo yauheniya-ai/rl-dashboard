@@ -19,7 +19,6 @@ services:
     rootDir: frontend
     buildCommand: npm ci && npm run build
     staticPublishPath: ./build
-    plan: free
     autoDeploy: true
     envVars:
       - key: REACT_APP_API_URL
