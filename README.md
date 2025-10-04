@@ -3,7 +3,7 @@
 A real-time dashboard to visualize the training process for a Ping Pong agent, built with **FastAPI** (backend) and **React** (frontend).
 
 <p align="center">
-  <img src="Screenshot.png" alt="Pong Dashboard" width="800" />
+  <img src="Screenshot_Dashboard.png" alt="Pong Dashboard" width="800" />
   <br><em>Fig. 1: Ping Pong RL Training Dashboard –<br>Real-time Performance Monitoring.</em>
 </p>
 
@@ -88,7 +88,15 @@ npm install
 npm start
 ```
 
-4. Open http://localhost:3000 to view the dashboard.
+4. Open http://localhost:3000 to view the dashboard with the training metrics (Fig. 1).
+
+5. For convenience, a summary of the official Olympic Table Tennis Rules can be found beneath the dashboard (Fig. 2).
+
+<p align="center">
+  <img src="Screenshot_Rules.png" alt="Table Tennis Rules" width="800" />
+  <br><em>Fig. 2: Table Tennis 3D Model<br>and Olympics Rules.</em>
+</p>
+
 
 ## License
 
@@ -96,4 +104,5 @@ MIT
 
 ## Credit
 
-The 3D model is titled ["Low Poly Table Tennis"](https://sketchfab.com/3d-models/low-poly-table-tennis-5daf236766f74e71a4c4375032a76b70) by [Xorshift](https://sketchfab.com/Xorshift) licensed under [CC-BY-4.0](http://creativecommons.org/licenses/by/4.0/)
+The 3D model of the Table Tennis titled ["Low Poly Table Tennis"](https://sketchfab.com/3d-models/low-poly-table-tennis-5daf236766f74e71a4c4375032a76b70) is the work by [Xorshift](https://sketchfab.com/Xorshift) licensed under [CC-BY-4.0](http://creativecommons.org/licenses/by/4.0/)
+
