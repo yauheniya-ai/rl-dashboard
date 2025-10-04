@@ -1,6 +1,9 @@
 # Ping Pong Dashboard
 
-A real-time dashboard to visualize the training process for a Ping Pong agent, built with **FastAPI** (backend) and **React** (frontend).
+A real-time dashboard to visualize the training process for a Ping Pong agent, built with&nbsp;
+<img src="https://api.iconify.design/logos:fastapi-icon.svg" width="12" height="12" style="vertical-align:middle;" alt="FastAPI"/> **FastAPI** (backend) and&nbsp;
+<img src="https://api.iconify.design/logos:react.svg" width="12" height="12" style="vertical-align:middle;" alt="React"/> **React** (frontend).
+
 
 <p align="center">
   <img src="Screenshot_Dashboard.png" alt="Pong Dashboard" width="800" />
@@ -37,8 +40,10 @@ pong-dashboard/
 - **Live training chart**: Plot average rewards of the last 50 episodes over training steps.  
 - **KPI cards**: Display best reward, last average reward, and elapsed time.  
 - **Run summary table**: Shows previous runs, best reward, last average reward, elapsed time, and model type.  
-- **3D Table Tennis model**: Interactive view of a ping pong table using React Three Fiber.  
-- **Rules panel**: Briefly explains Olympic table tennis rules alongside the model.
+- **3D Table Tennis model**: Interactive view of a ping pong table using <img src="https://api.iconify.design/logos:threejs.svg" width="12" height="12" style="vertical-align:middle;" alt="ThreeJS"/> React Three Fiber     
+- **Rules panel**: Briefly explains <img src="./frontend/public/images/olympics_logo_color.svg" height="16" style="vertical-align:middle;" alt="Olympics"/> Olympic table tennis rules alongside the model.
+
+
 
 ## Backend Setup
 
@@ -94,7 +99,7 @@ npm start
 
 <p align="center">
   <img src="Screenshot_Rules.png" alt="Table Tennis Rules" width="800" />
-  <br><em>Fig. 2: Table Tennis 3D Model<br>and Olympics Rules.</em>
+  <br><em>Fig. 2: Table Tennis 3D Model<br>and Olympic Rules.</em>
 </p>
 
 
