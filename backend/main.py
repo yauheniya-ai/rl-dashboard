@@ -77,7 +77,10 @@ def get_results():
     # training_log
     if "training_log" in tables:
         with get_conn() as conn:
-            df = pd.read_sql(f'SELECT * FROM "{tables["training_log"]}" ORDER BY steps ASC', conn)
+            df = pd.read_sql(
+                f'SELECT * FROM "{tables["training_log"]}" ORDER BY CAST(steps AS DOUBLE PRECISION) ASC',
+                conn
+            )
             if not df.empty:
                 results["steps"] = df["steps"].tolist()
                 results["returns"] = [safe_float(x) for x in df["avg_return_last50"]]
