@@ -70,35 +70,38 @@ def get_results():
     all_runs = get_all_run_tables()
     if not all_runs:
         return {"steps": [], "returns": [], "elapsed": [], "best": None, "last": None}
-
+    
     latest_run_id, tables = next(iter(all_runs.items()))
     results = {"steps": [], "returns": [], "elapsed": [], "last": None, "best": None}
-
+    
     # training_log
     if "training_log" in tables:
         with get_conn() as conn:
             df = pd.read_sql(
-                f'SELECT * FROM "{tables["training_log"]}" ORDER BY CAST(steps AS DOUBLE PRECISION) ASC',
+                f'SELECT * FROM "{tables["training_log"]}"',
                 conn
             )
             if not df.empty:
-                results["steps"] = [safe_float(x) for x in df["steps"]]
+                # Convert steps to numeric for proper sorting
+                df['steps'] = pd.to_numeric(df['steps'], errors='coerce')
+                df = df.sort_values('steps')
+                results["steps"] = df["steps"].tolist()
                 results["returns"] = [safe_float(x) for x in df["avg_return_last50"]]
                 results["elapsed"] = [safe_float(x) for x in df["elapsed_min"]]
                 results["last"] = safe_float(df["avg_return_last50"].iloc[-1])
-
+    
     # best_episode_results - get the last (most recent best) row
     if "best_episode_results" in tables:
         with get_conn() as conn:
             best_df = pd.read_sql(f'SELECT * FROM "{tables["best_episode_results"]}"', conn)
-        if not best_df.empty:
-            best_row = best_df.iloc[-1]
-            results["best"] = {
-                "episode": int(float(best_row["episode"])),
-                "steps": int(float(best_row["steps"])),
-                "reward": safe_float(best_row["reward"]),
-            }
-
+            if not best_df.empty:
+                best_row = best_df.iloc[-1]
+                results["best"] = {
+                    "episode": int(float(best_row["episode"])),
+                    "steps": int(float(best_row["steps"])),
+                    "reward": safe_float(best_row["reward"]),
+                }
+    
     return results
 
 
