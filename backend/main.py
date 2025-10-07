@@ -82,7 +82,7 @@ def get_results():
                 conn
             )
             if not df.empty:
-                results["steps"] = df["steps"].tolist()
+                results["steps"] = [safe_float(x) for x in df["steps"]]
                 results["returns"] = [safe_float(x) for x in df["avg_return_last50"]]
                 results["elapsed"] = [safe_float(x) for x in df["elapsed_min"]]
                 results["last"] = safe_float(df["avg_return_last50"].iloc[-1])
