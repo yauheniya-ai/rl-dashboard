@@ -24,12 +24,8 @@ function App() {
     try {
       const res = await fetch(`${API_URL}/results`);
       const json = await res.json();
-      // Convert string arrays to numbers for plotting
-      setLiveData({
-        ...json,
-        steps: json.steps?.map(s => parseFloat(s)) || [],
-        returns: json.returns?.map(r => parseFloat(r)) || [],
-      });
+      // Data comes pre-sorted and as numbers from backend
+      setLiveData(json);
     } catch (e) {
       console.error("Failed to fetch live results:", e);
     }
@@ -51,13 +47,10 @@ function App() {
     try {
       const res = await fetch(`${API_URL}/results/${runId}`);
       const json = await res.json();
+      // Data comes pre-sorted and as numbers from backend
       setRunDataCache(prev => ({
         ...prev,
-        [runId]: {
-          ...json,
-          steps: json.steps?.map(s => parseFloat(s)) || [],
-          returns: json.returns?.map(r => parseFloat(r)) || [],
-        }
+        [runId]: json
       }));
     } catch (e) {
       console.error(`Failed to fetch data for run ${runId}:`, e);
@@ -127,16 +120,13 @@ function App() {
               x: runData.steps,
               y: runData.returns,
               type: "scatter",
-              //mode: "lines+markers",
               mode: "lines",
-              //marker: { color: color, size: 2 },
               line: { color: color, shape: "linear" },
               name: run.run,
             };
           }).filter(Boolean)}
           layout={{
             width: 768,
-            //height: 500,
             title: {
               text: "Training Curve",
               font: { color: "#fff" },
@@ -189,13 +179,11 @@ function App() {
                         const totalMinutes = Number(run.elapsed_min);
                         const hours = Math.floor(totalMinutes / 60);
                         const minutes = Math.floor(totalMinutes % 60);
-                        // Pad with zeros if needed
                         const pad = num => num.toString().padStart(2, '0');
                         return `${pad(hours)}:${pad(minutes)}`;
                       })()
                     : "-"}
                 </td>
-                {/* Plot checkbox */}
                 <td style={{ textAlign: "center" }}>
                   <input
                     type="checkbox"
@@ -216,7 +204,6 @@ function App() {
           </tbody>
         </table>
         
-        {/* Toggle link for previous runs */}
         {runs.length > 1 && (
           <div style={{ marginTop: "0.5rem", textAlign: "left" }}>
             <span
@@ -237,7 +224,6 @@ function App() {
       </div>
 
       <div style={{ display: "flex", gap: "2rem", marginTop: "3rem" , marginRight: "5rem" }}>
-        {/* Left: Table Tennis Model */}
         <div style={{ flex: "0 0 40%", height: "600px" }}>
           <h2 style={{ color: "#fff", textAlign: "center", marginBottom: "1rem" }}>
             Ping Pong Game
@@ -245,7 +231,6 @@ function App() {
           <TableTennisScene />
         </div>
 
-        {/* Right: Rules */}
         <div style={{ flex: "1", color: "#000", fontSize: "1rem", lineHeight: "1.6",  textAlign: "left" }}>
           <div style={{ display: "flex", alignItems: "center", marginBottom: "1rem" }}>
             <img
@@ -282,7 +267,7 @@ function App() {
           </ul>
 
           <p style={{ fontSize: "0.85rem", marginTop: "1rem" }}>
-            Source: <a href="https://olympics.com" target="_blank" style={{ color: "#8b76e9" }}>olympics.com</a>
+            Source: <a href="https://olympics.com" target="_blank" rel="noreferrer" style={{ color: "#8b76e9" }}>olympics.com</a>
           </p>
         </div>
       </div>
