@@ -7,7 +7,6 @@ from dotenv import load_dotenv
 
 # Load environment variables (.env)
 load_dotenv()
-
 NEON_CONN = os.environ.get("NEON_CONN")
 
 app = FastAPI(title="Ping Pong Training Tracker")
@@ -33,6 +32,14 @@ def safe_float(x):
     return float(x)
 
 
+def safe_int(x):
+    """Convert safely to int, handling strings / floats / NaN."""
+    try:
+        return int(float(x))
+    except (ValueError, TypeError):
+        return None
+
+
 def get_all_run_tables():
     """
     Fetch all run tables in NeonDB.
@@ -47,19 +54,16 @@ def get_all_run_tables():
             tables = [row[0] for row in cur.fetchall()]
 
     for tbl in tables:
-        # tbl example: run_20251003_232605_training_log
         if tbl.startswith("run_") and tbl.endswith("_training_log"):
-            run_id = tbl[len("run_") : -len("_training_log")]  # extract 20251003_232605
+            run_id = tbl[len("run_") : -len("_training_log")]
             runs[run_id] = {"training_log": tbl}
 
-            # check for best_episode_results
             best_tbl = f"run_{run_id}_best_episode_results"
             with get_conn() as conn:
                 df = pd.read_sql(f"SELECT to_regclass('{best_tbl}') AS exists;", conn)
                 if df["exists"].iloc[0] is not None:
                     runs[run_id]["best_episode_results"] = best_tbl
 
-    # sort latest first
     runs = dict(sorted(runs.items(), reverse=True))
     return runs
 
@@ -70,38 +74,37 @@ def get_results():
     all_runs = get_all_run_tables()
     if not all_runs:
         return {"steps": [], "returns": [], "elapsed": [], "best": None, "last": None}
-    
+
     latest_run_id, tables = next(iter(all_runs.items()))
     results = {"steps": [], "returns": [], "elapsed": [], "last": None, "best": None}
-    
+
     # training_log
     if "training_log" in tables:
         with get_conn() as conn:
-            df = pd.read_sql(
-                f'SELECT * FROM "{tables["training_log"]}"',
-                conn
-            )
-            if not df.empty:
-                # Convert steps to numeric for proper sorting
-                df['steps'] = pd.to_numeric(df['steps'], errors='coerce')
-                df = df.sort_values('steps')
-                results["steps"] = df["steps"].tolist()
-                results["returns"] = [safe_float(x) for x in df["avg_return_last50"]]
-                results["elapsed"] = [safe_float(x) for x in df["elapsed_min"]]
-                results["last"] = safe_float(df["avg_return_last50"].iloc[-1])
-    
-    # best_episode_results - get the last (most recent best) row
+            df = pd.read_sql(f'SELECT * FROM "{tables["training_log"]}"', conn)
+        if not df.empty:
+            df["steps"] = pd.to_numeric(df["steps"], errors="coerce")
+            df["avg_return_last50"] = pd.to_numeric(df["avg_return_last50"], errors="coerce")
+            df["elapsed_min"] = pd.to_numeric(df["elapsed_min"], errors="coerce")
+            df = df.sort_values("steps")
+            results["steps"] = df["steps"].astype("int").tolist()
+            results["returns"] = df["avg_return_last50"].apply(safe_float).tolist()
+            results["elapsed"] = df["elapsed_min"].apply(safe_float).tolist()
+            results["last"] = safe_float(df["avg_return_last50"].iloc[-1])
+
+    # best_episode_results
     if "best_episode_results" in tables:
         with get_conn() as conn:
             best_df = pd.read_sql(f'SELECT * FROM "{tables["best_episode_results"]}"', conn)
-            if not best_df.empty:
-                best_row = best_df.iloc[-1]
-                results["best"] = {
-                    "episode": int(float(best_row["episode"])),
-                    "steps": int(float(best_row["steps"])),
-                    "reward": safe_float(best_row["reward"]),
-                }
-    
+        if not best_df.empty:
+            best_row = best_df.iloc[-1]
+            results["best"] = {
+                "episode": safe_int(best_row["episode"]),
+                "steps": safe_int(best_row["steps"]),
+                "reward": safe_float(best_row["reward"]),
+            }
+
+    print(f"[/results] Sending latest run data (types): { {k: type(v) for k,v in results.items()} }")
     return results
 
 
@@ -109,10 +112,9 @@ def get_results():
 def get_results_by_run(run_id: str):
     """Return specific run details for chart."""
     all_runs = get_all_run_tables()
-    
     if run_id not in all_runs:
         raise HTTPException(status_code=404, detail=f"Run {run_id} not found")
-    
+
     tables = all_runs[run_id]
     results = {"steps": [], "returns": [], "elapsed": [], "last": None, "best": None}
 
@@ -121,23 +123,28 @@ def get_results_by_run(run_id: str):
         with get_conn() as conn:
             df = pd.read_sql(f'SELECT * FROM "{tables["training_log"]}"', conn)
         if not df.empty:
-            results["steps"] = df["steps"].tolist()
-            results["returns"] = [safe_float(x) for x in df["avg_return_last50"]]
-            results["elapsed"] = [safe_float(x) for x in df["elapsed_min"]]
+            df["steps"] = pd.to_numeric(df["steps"], errors="coerce")
+            df["avg_return_last50"] = pd.to_numeric(df["avg_return_last50"], errors="coerce")
+            df["elapsed_min"] = pd.to_numeric(df["elapsed_min"], errors="coerce")
+            df = df.sort_values("steps")
+            results["steps"] = df["steps"].astype("int").tolist()
+            results["returns"] = df["avg_return_last50"].apply(safe_float).tolist()
+            results["elapsed"] = df["elapsed_min"].apply(safe_float).tolist()
             results["last"] = safe_float(df["avg_return_last50"].iloc[-1])
 
-    # best_episode_results - get the last (most recent best) row
+    # best_episode_results
     if "best_episode_results" in tables:
         with get_conn() as conn:
             best_df = pd.read_sql(f'SELECT * FROM "{tables["best_episode_results"]}"', conn)
         if not best_df.empty:
             best_row = best_df.iloc[-1]
             results["best"] = {
-                "episode": int(float(best_row["episode"])),
-                "steps": int(float(best_row["steps"])),
+                "episode": safe_int(best_row["episode"]),
+                "steps": safe_int(best_row["steps"]),
                 "reward": safe_float(best_row["reward"]),
             }
 
+    print(f"[/results/{run_id}] Sending run data (types): { {k: type(v) for k,v in results.items()} }")
     return results
 
 
@@ -153,30 +160,29 @@ def get_runs_summary():
         elapsed_min = None
         model_name = None
 
-        # fetch last avg_return and elapsed_min
+        # training_log
         if "training_log" in tables:
             with get_conn() as conn:
                 df = pd.read_sql(f'SELECT * FROM "{tables["training_log"]}"', conn)
             if not df.empty:
+                df["avg_return_last50"] = pd.to_numeric(df["avg_return_last50"], errors="coerce")
+                df["elapsed_min"] = pd.to_numeric(df["elapsed_min"], errors="coerce")
                 last_avg_return = safe_float(df["avg_return_last50"].iloc[-1])
                 elapsed_min = safe_float(df["elapsed_min"].iloc[-1])
 
-        # fetch best reward from last row of best_episode_results
+        # best_episode_results
         if "best_episode_results" in tables:
             with get_conn() as conn:
                 df_best = pd.read_sql(f'SELECT * FROM "{tables["best_episode_results"]}"', conn)
             if not df_best.empty:
+                df_best["reward"] = pd.to_numeric(df_best["reward"], errors="coerce")
                 best_reward = safe_float(df_best["reward"].iloc[-1])
 
-        # fetch model from config_kv table if it exists
+        # config_kv table
         config_table = f"run_{run_id}_config_kv"
         with get_conn() as conn:
-            # check table existence
             cur = conn.cursor()
-            cur.execute(
-                "SELECT to_regclass(%s) AS exists;",
-                (config_table,)
-            )
+            cur.execute("SELECT to_regclass(%s) AS exists;", (config_table,))
             exists = cur.fetchone()[0]
             if exists:
                 df_config = pd.read_sql(
@@ -195,4 +201,6 @@ def get_runs_summary():
             "elapsed_min": elapsed_min
         })
 
+    print(f"[/runs] summary types as sent to frontend for first run: "
+          f"{ {k: type(v) for k,v in summary_list[0].items()} if summary_list else {}}")
     return summary_list
